@@ -24,7 +24,6 @@ plt.tight_layout()
 plt.savefig('graphe/repartition_categories_2010_2019.png')
 plt.show()
 
-# Graphique à barres pour le sport
 data_sport = data_cleaned[data_cleaned['Categorie'] == 'Sport']
 data_sport_years = data_sport.groupby('Annee')['Nb_Sujets'].sum().reset_index()
 
