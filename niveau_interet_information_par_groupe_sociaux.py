@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def load_data():
+def load_interest_data():
     return pd.read_excel("data/les-francais-et-l-information-arcom-2024-base-anonymisee.xlsx", engine="openpyxl")
 
 def plot_interest_levels(data, selected_groups):
