@@ -1,15 +1,57 @@
 import streamlit as st
+from niveau_interet_information_par_groupe_sociaux import load_data, plot_interest_levels
+from analyse_tv_programme_data import load_data, plot_pie_chart_by_year, plot_bar_chart_by_category
+import matplotlib.pyplot as plt
+
+@st.cache_data
+def cached_load_data():
+    return load_data()
 
 st.title("📂 Dashboard Open Data University Les Françaises et Français et l'audiovisuel")
 
-st.header("Répartition des thématiques")
-st.image("graphe/repartition_categories_2010_2019.png", caption="Répartition des thématiques de 2010 à 2019")
+st.header("📈 L'intérêt des français à l'information")
 
-st.header("Nombre de sujets sur la santé")
-st.image("graphe/sante_par_annee.png", caption="Évolution du nombre de sujets sur la santé par année")
+all_groups = ["Employés", "Chomeur", "Chomeur à la recherche", "Étudiants", "Personne au foyer", "Retraités", "Inactif", "Ne souhaite pas répondre"]
+selected_groups = st.multiselect("Choisissez les groupes sociaux à comparer :", all_groups, default=all_groups)
 
-st.header("Nombre de sujets sur le sport")
-st.image("graphe/sport_par_annee.png", caption="Évolution du nombre de sujets sur le sport par année")
+if selected_groups:
+    data = cached_load_data()
+    fig = plot_interest_levels(data, selected_groups)
+    st.pyplot(fig)
+else:
+    st.warning("Veuillez sélectionner au moins un groupe pour afficher le graphique.")
 
-st.header("L'intérêt des français à l'information")
-st.image("graphe/interet_combined.png", caption="L'intérêt des français à l'information au fil du temps")
+st.header("📈 Comparaison du temps de parole des hommes et des femmes à la radio en 2019 et 2020")
+st.image("graphe/Temps_Parole_Homme_Femme_Radio_19-20.png", caption="Comparaison du temps de parole des hommes et des femmes à la radio en 2019 et 2020")
+
+st.header("📈 Comparaison du temps de parole des hommes et des femmes à la télévision en 2019 et 2020")
+st.image("graphe/Temps_Parole_Homme_Femme_TV_19-20.png", caption="Comparaison du temps de parole des hommes et des femmes à la télévision en 2019 et 2020")
+
+st.header("📈 Comparaison du temps de parole des hommes et des femmes à la télévision en 2019")
+st.image("graphe/Temps_Parole_Femmes_Programmes_2019.png", caption="Temps de parole des femmes à la télévision en 2019")
+st.image("graphe/Temps_Parole_Hommes_Programmes_2019.png", caption="Temps de parole des hommes à la télévision en 2019")
+
+st.header("📈 Comparaison du temps de parole des hommes et des femmes à la télévision en 2020")
+st.image("graphe/Temps_Parole_Femmes_Programmes_2020.png", caption="Temps de parole des femmes à la télévision en 2020")
+st.image("graphe/Temps_Parole_Hommes_Programmes_2020.png", caption="Temps de parole des hommes à la télévision en 2020")
+
+st.header("📊 Répartition des sujets par catégorie et par année")
+
+data = load_data()
+
+available_years = sorted(data['Annee'].dropna().unique())
+year1 = st.selectbox("Sélectionnez la première année :", available_years, index=available_years.index(2010) if 2010 in available_years else 0)
+year2 = st.selectbox("Sélectionnez la deuxième année :", available_years, index=available_years.index(2019) if 2019 in available_years else 0)
+
+col1, col2 = st.columns(2)
+with col1:
+    st.pyplot(plot_pie_chart_by_year(data, year1))
+with col2:
+    st.pyplot(plot_pie_chart_by_year(data, year2))
+
+st.header("📈 Évolution du nombre de sujets par catégorie")
+
+categories = sorted(data['Categorie'].unique())
+selected_category = st.selectbox("Choisissez une catégorie :", categories, index=categories.index("Santé") if "Santé" in categories else 0)
+
+st.pyplot(plot_bar_chart_by_category(data, selected_category))
